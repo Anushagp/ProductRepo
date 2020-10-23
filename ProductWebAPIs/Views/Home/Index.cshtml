@@ -1,0 +1,91 @@
+﻿<head>
+    <title>Product Web Api</title>
+    <script src="~/Scripts/jquery-3.4.1.js"></script>
+    <script>
+        function showAllProds() {
+            $("#prodList").empty();
+            $.getJSON("/api/product", function (prods) {            //to call getall
+                prods.forEach(function (prod) {
+                    var str = prod.ProdId + "-" + prod.ProdName + "-" + prod.Category + "-" + prod.Price;
+                    $('<LI>', { text: str }).appendTo($("#prodList"));
+
+                });
+            });
+        }
+        $(document).ready(function () {
+            showAllProds();
+            $("#btnShow").click(function () {
+                var pid = $("#txtpid").val();
+                $.getJSON("/api/product/" + pid, function (prod) {
+                    $("#txtPname").val(prod.ProdName);
+                    $("#cboCat").val(prod.Category);
+                    $("#txtPrice").val(prod.Price);
+                });
+               
+            });
+            $("#btnSave").click(function () {
+                var pid = $("#txtpid").val();
+                var pname = $("#txtPname").val();
+                var cat = $("#cboCat").val();
+                var price = $("#txtPrice").val();
+                var product = { "ProdId": pid, "ProdName": pname, "Category": cat, "Price": price };
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/product',
+                    data: JSON.stringify(product),
+                    contentType: 'application/json',
+                    success: function () {
+                        alert('New product added');
+                        showAllProds();
+                    }
+                    
+                });
+            });
+            $("#btnUpdate").click(function () {
+                var pid = $("#txtpid").val();
+                var pname = $("#txtPname").val();
+                var cat = $("#cboCat").val();
+                var price = $("#txtPrice").val();
+                var product = { "ProdId": pid, "ProdName": pname, "Category": cat, "Price": price };
+                $.ajax({
+                    type: 'PUT',
+                    url: '/api/product/' + pid,     //call UpdateProd
+                    data: JSON.stringify(product),
+                    contentType: 'application/json; charset=UTF-8',
+                    success: function () {
+                        alert('Product updated');
+                        showAllProds();
+                    }
+                });
+            });
+            $("#btnDelete").click(function () {
+                var pid = $("#txtpid").val();
+                $.ajax({
+                    type: 'DELETE',
+                    url: '/api/product/' + pid,                 //call DeleteProd
+                    
+                    success: function () {
+                        alert('Product Deleted');
+                        showAllProds();
+                    }
+                });
+            });
+        });
+
+    </script>
+</head>
+<body>
+    <h2>Product Form</h2>
+    <form>
+        Product id:<input type="number" id="txtpid" />
+        <input type="button" value="Show" id="btnShow" /><br />
+        Name:<input type="text" id="txtPname" /><br />
+        Category:<input type="text" id="cboCat" /><br />
+        Price:<input type="number" id="txtPrice" /><br />
+        <input type="button" value="Save" id="btnSave" />
+        <input type="button" value="Update" id="btnUpdate" />
+        <input type="button" value="Delete" id="btnDelete" />
+    </form>
+    <h2>List of Products</h2>
+    <ul id="prodList"></ul>
+</body> 
